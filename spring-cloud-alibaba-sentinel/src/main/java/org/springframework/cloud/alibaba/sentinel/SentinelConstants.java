@@ -23,11 +23,12 @@ public interface SentinelConstants {
 
 	String PROPERTY_PREFIX = "spring.cloud.sentinel";
 
-	String PROPERTY_ITEM_SEPARATOR = ".";
+	String BLOCK_TYPE = "block";
+	String FALLBACK_TYPE = "fallback";
 
-	String PROPERTY_DATASOURCE_NAME = "datasource";
+	// commercialization
 
-	String PROPERTY_DATASOURCE_PREFIX = PROPERTY_PREFIX + PROPERTY_ITEM_SEPARATOR
-			+ PROPERTY_DATASOURCE_NAME;
+	String FLOW_DATASOURCE_NAME = "edas-flow";
+	String DEGRADE_DATASOURCE_NAME = "edas-degrade";
 
 }

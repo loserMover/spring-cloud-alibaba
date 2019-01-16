@@ -20,7 +20,7 @@ import org.springframework.boot.actuate.autoconfigure.endpoint.condition.Conditi
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.alibaba.nacos.NacosDiscoveryProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,15 +28,15 @@ import org.springframework.context.annotation.Configuration;
  * @author xiaojing
  */
 @Configuration
-@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
 @ConditionalOnClass(Endpoint.class)
 public class NacosDiscoveryEndpointAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
 	@ConditionalOnEnabledEndpoint
-	public NacosDiscoveryEndpoint nacosDiscoveryEndpoint() {
-		return new NacosDiscoveryEndpoint();
+	public NacosDiscoveryEndpoint nacosDiscoveryEndpoint(
+			NacosDiscoveryProperties nacosDiscoveryProperties) {
+		return new NacosDiscoveryEndpoint(nacosDiscoveryProperties);
 	}
 
 }

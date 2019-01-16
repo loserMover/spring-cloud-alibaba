@@ -17,55 +17,57 @@
 package org.springframework.cloud.alibaba.nacos.registry;
 
 import org.springframework.cloud.alibaba.nacos.NacosDiscoveryProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.ManagementServerPortUtils;
 import org.springframework.cloud.client.serviceregistry.Registration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
 
 import java.net.URI;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 
-import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.naming.NamingService;
-import com.alibaba.nacos.client.naming.utils.UtilAndComs;
-
-import static com.alibaba.nacos.api.PropertyKeyConst.*;
 
 /**
  * @author xiaojing
  */
 public class NacosRegistration implements Registration, ServiceInstance {
 
-	@Autowired
+	public static final String MANAGEMENT_PORT = "management.port";
+	public static final String MANAGEMENT_CONTEXT_PATH = "management.context-path";
+	public static final String MANAGEMENT_ADDRESS = "management.address";
+
 	private NacosDiscoveryProperties nacosDiscoveryProperties;
 
-	private NamingService nacosNamingService;
+	private ApplicationContext context;
 
-	@Autowired
-	private Environment environment;
+	public NacosRegistration(NacosDiscoveryProperties nacosDiscoveryProperties,
+			ApplicationContext context) {
+		this.nacosDiscoveryProperties = nacosDiscoveryProperties;
+		this.context = context;
+	}
 
 	@PostConstruct
 	public void init() {
-		nacosDiscoveryProperties.overrideFromEnv(environment);
 
-		Properties properties = new Properties();
-		properties.put(SERVER_ADDR, nacosDiscoveryProperties.getServerAddr());
-		properties.put(NAMESPACE, nacosDiscoveryProperties.getNamespace());
-		properties.put(UtilAndComs.NACOS_NAMING_LOG_NAME,
-				nacosDiscoveryProperties.getLogName());
-		properties.put(ENDPOINT, nacosDiscoveryProperties.getEndpoint());
-		properties.put(ACCESS_KEY, nacosDiscoveryProperties.getAccessKey());
-		properties.put(SECRET_KEY, nacosDiscoveryProperties.getSecretKey());
-		properties.put(CLUSTER_NAME, nacosDiscoveryProperties.getClusterName());
-		try {
-			nacosNamingService = NacosFactory.createNamingService(properties);
-		}
-		catch (Exception e) {
-
+		Environment env = context.getEnvironment();
+		Integer managementPort = ManagementServerPortUtils.getPort(context);
+		if (null != managementPort) {
+			Map<String, String> metadata = nacosDiscoveryProperties.getMetadata();
+			metadata.put(MANAGEMENT_PORT, managementPort.toString());
+			String contextPath = env
+					.getProperty("management.server.servlet.context-path");
+			String address = env.getProperty("management.server.address");
+			if (!StringUtils.isEmpty(contextPath)) {
+				metadata.put(MANAGEMENT_CONTEXT_PATH, contextPath);
+			}
+			if (!StringUtils.isEmpty(address)) {
+				metadata.put(MANAGEMENT_ADDRESS, address);
+			}
 		}
 	}
 
@@ -85,9 +87,7 @@ public class NacosRegistration implements Registration, ServiceInstance {
 	}
 
 	public void setPort(int port) {
-		if (nacosDiscoveryProperties.getPort() < 0) {
-			this.nacosDiscoveryProperties.setPort(port);
-		}
+		this.nacosDiscoveryProperties.setPort(port);
 	}
 
 	@Override
@@ -122,22 +122,12 @@ public class NacosRegistration implements Registration, ServiceInstance {
 	}
 
 	public NamingService getNacosNamingService() {
-		return nacosNamingService;
-	}
-
-	public void setNacosNamingService(NamingService nacosNamingService) {
-		this.nacosNamingService = nacosNamingService;
-	}
-
-	public void setNacosDiscoveryProperties(
-			NacosDiscoveryProperties nacosDiscoveryProperties) {
-		this.nacosDiscoveryProperties = nacosDiscoveryProperties;
+		return nacosDiscoveryProperties.namingServiceInstance();
 	}
 
 	@Override
 	public String toString() {
 		return "NacosRegistration{" + "nacosDiscoveryProperties="
-				+ nacosDiscoveryProperties + ", nacosNamingService=" + nacosNamingService
-				+ '}';
+				+ nacosDiscoveryProperties + '}';
 	}
 }

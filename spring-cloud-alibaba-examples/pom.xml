@@ -5,7 +5,8 @@
     <parent>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-alibaba</artifactId>
-        <version>0.2.0.BUILD-SNAPSHOT</version>
+        <version>0.2.2.BUILD-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -22,10 +23,26 @@
         <module>sentinel-example/sentinel-dubbo-example/sentinel-dubbo-api</module>
         <module>nacos-example/nacos-discovery-example</module>
         <module>nacos-example/nacos-config-example</module>
-        <module>storage-example</module>
+        <module>env-extension</module>
+        <module>oss-example</module>
+        <module>ans-example/ans-consumer-feign-example</module>
+        <module>ans-example/ans-consumer-ribbon-example</module>
+        <module>ans-example/ans-provider-example</module>
+        <module>acm-example/acm-local-example</module>
+        <module>rocketmq-example</module>
+        <module>spring-cloud-bus-rocketmq-example</module>
+        <module>schedulerx-example/schedulerx-simple-task-example</module>
     </modules>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>cobertura-maven-plugin</artifactId>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -35,6 +52,16 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <skip>true</skip>
+                    <check/>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
